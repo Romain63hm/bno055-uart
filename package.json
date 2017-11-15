@@ -1,0 +1,19 @@
+{
+  "name": "bno055-uart",
+  "version": "1.0.0",
+  "description": "BNO055 node js library for Raspberry Pi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bno055",
+    "raspberry",
+    "pi"
+  ],
+  "author": "Romain Rousserie",
+  "license": "ISC",
+  "dependencies": {
+    "serialport": "^6.0.4"
+  }
+}
