@@ -233,15 +233,15 @@ export class BNO055 {
 		this.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err) {
 			self.configMode(function(err) {
 				if (err) {
-					console.log(err);
-				}
-				console.log("ok");
+                    logger.error("Error while setting config mode" + err)
+                    return;
+                }
+                logger.debug("Config mode successfully setted");
 				self.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err, succ) {
 					if (err) {
-						console.log(err)
+						logger.error("Error while setting config mode" + err )
+                        return;
 					}
-					console.log("Succeessssss")
-					console.log(succ)
 					self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
 						if (err) {
 							console.log(err)
@@ -334,10 +334,13 @@ export class BNO055 {
                 return callback(err)
             }
             if (!ack) {
+                logger.debug("serialSend : Method does not expect any return");
                 return callback()
             }
+            logger.debug("serialSend : Method expect return");
             Observable.create(function (observer) {
                 self.observers.push(observer);
+                logger.debug("serialSend : Reading from serial");
                 self.serial.read(2);
             }).subscribe(result => {
                 if (result == null || result.length != 2) {
@@ -352,7 +355,6 @@ export class BNO055 {
             });
         });
     }
-
 
     getCalibrationStatus(cb) {
         this.readByte(BNO055_CALIB_STAT_ADDR, cb);
