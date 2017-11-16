@@ -213,7 +213,9 @@ export class BNO055 {
             autoOpen: false,
             baudRate: 115200
         }
-        logger.error("Constructor debug test")
+        logger.error("Constructor debug test");
+        logger.info("Constructor info test");
+        logger.warn("Constructor warn test");
         this.serial = new SerialPort(port, options);
         this.serial.open((error) => {
             if (error) {
@@ -221,9 +223,10 @@ export class BNO055 {
             }
             // Once the serial port is open we configure the data reader
             this.serial.on('data', (data) => {
-                logger.debug("Received datas :")
+                logger.debug("on::data : Received datas :")
                 logger.debug(data)
                 if (this.observers.length > 0) {
+                    logger.debug("on::data : Sending back datas through the observer");
                     // Getting the first observer and resolving it with received datas from the serial port
                     this.observers[0].next(data);
                     // Removing the observer from the list
