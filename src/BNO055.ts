@@ -209,6 +209,7 @@ export class BNO055 {
      * @param resetPin Pin used for BNO055 reset
      */
     constructor(port: string, resetPin: number) {
+        var self = this;
         let options = {
             autoOpen: false,
             baudRate: 115200
@@ -222,15 +223,15 @@ export class BNO055 {
                 throw error;
             }
             // Once the serial port is open we configure the data reader
-            this.serial.on('data', (data) => {
+            self.serial.on('data', (data) => {
                 logger.debug("on::data : Received datas :")
                 logger.debug(data)
-                if (this.observers.length > 0) {
+                if (self.observers.length > 0) {
                     logger.debug("on::data : Sending back datas through the observer");
                     // Getting the first observer and resolving it with received datas from the serial port
-                    this.observers[0].next(data);
+                    self.observers[0].next(data);
                     // Removing the observer from the list
-                    this.observers.shift();
+                    self.observers.shift();
                 }
             });
         });
