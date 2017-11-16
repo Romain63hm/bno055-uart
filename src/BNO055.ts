@@ -281,8 +281,8 @@ export class BNO055 {
             }
             var length = succ[1];
             Observable.create(function (observer) {
-                var resp = self.serial.read(length as number);
                 self.observers.push(observer);
+                var resp = self.serial.read(length as number);
             }).subscribe(result => {
                 console.log("New Read");
                 console.log(result);
@@ -337,8 +337,8 @@ export class BNO055 {
                 return callback()
             }
             Observable.create(function (observer) {
-                self.serial.read(2);
                 self.observers.push(observer);
+                self.serial.read(2);
             }).subscribe(result => {
                 if (result == null || result.length != 2) {
                     return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
