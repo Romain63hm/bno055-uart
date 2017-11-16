@@ -242,10 +242,10 @@ export class BNO055 {
 		this.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err) {
 			self.configMode(function(err) {
 				if (err) {
-                    logger.error("Error while setting config mode" + err)
+                    logger.error("Begin : Error while setting config mode" + err)
                     return;
                 }
-                logger.debug("Config mode successfully setted");
+                logger.debug("Begin : Config mode successfully setted");
 				self.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err, succ) {
 					if (err) {
 						logger.error("Error while setting config mode" + err )
@@ -290,11 +290,12 @@ export class BNO055 {
             }
             var length = succ[1];
             Observable.create(function (observer) {
+                logger.debug("readBytes : Send read request");
                 self.observers.push(observer);
                 self.serial.read(length as number);
             }).subscribe(result => {
-                console.log("New Read");
-                console.log(result);
+                logger.debug("readBytes : Reading answer");
+                logger.debug(result);
                 if (result == null || result.length != length) {
                     return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
                 }
@@ -327,9 +328,7 @@ export class BNO055 {
 
     private setMode(mode : number, cb) {
         // Set operation mode for BNO055 sensor. Mode should be a value from table 3-3 and 3-5 datasheet
-        var finalMode = mode & 0xFF
-        console.log(finalMode);
-        this.writeByte(BNO055_OPR_MODE_ADDR, finalMode, cb);
+        this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, cb);
         setTimeout(() => {
             return;
         }, 30);
@@ -357,8 +356,6 @@ export class BNO055 {
                     return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
                 }
                 if (!(result[0] == 0xEE && result[1] == 0x07)) {
-                    console.log(result[0])
-                    console.log(result[1])
                     return callback(null, result)
                 }
                 return callback(new Error('Error while sending command to serial'));
