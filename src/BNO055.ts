@@ -220,10 +220,12 @@ export class BNO055 {
             }
             // Once the serial port is open we configure the data reader
             this.serial.on('data', (data) => {
-                // Getting the first observer and resolving it with received datas from the serial port
-                this.observers[0].next(data);
-                // Removing the observer from the list
-                this.observers.shift();
+                if (this.observers.length > 0) {
+                    // Getting the first observer and resolving it with received datas from the serial port
+                    this.observers[0].next(data);
+                    // Removing the observer from the list
+                    this.observers.shift();
+                }
             });
         });
     }
