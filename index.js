@@ -294,33 +294,27 @@ class BNO055 {
     serialSend(command, cb, ack) {
         var self = this;
         console.log(command)
-        var maxAttempts = 5;
-        var attempts = 0;
-        while(attemps < maxAttempts) {
-            self.serial.write(command, 'hex',  function (err) {
-                if (err) {
-                    console.log("Error while writing")
-                    return cb(err)
-                }
-                if (!ack) {
-                    console.log('Ack is false');
-                    return cb()
-                }
-                var resp = self.serial.read(2);
-                
-                if (resp == null || resp.length != 2) {
-                    return cb('Timeout waiting for serial acknoledge, is the BNO055 connected?')
-                } 
-                if (!(resp[0] == 0xEE && resp[1] == 0x07)) {
-                    console.log(resp[0])
-                    console.log(resp[1])
-                    return cb(null, resp)
-                }
-                attempts++;
-            });
-        }
-		
-        return cb('Exceeded maximum attempts to acknowledge serial command without bus error!');
+		self.serial.write(command, 'hex',  function (err) {
+			if (err) {
+				console.log("Error while writing")
+				return cb(err)
+			}
+			if (!ack) {
+				console.log('Ack is false');
+				return cb()
+			}
+			var resp = self.serial.read(2);
+			
+			if (resp == null || resp.length != 2) {
+				return cb('Timeout waiting for serial acknoledge, is the BNO055 connected?')
+			} 
+			if (!(resp[0] == 0xEE && resp[1] == 0x07)) {
+				console.log(resp[0])
+				console.log(resp[1])
+				return cb(null, resp)
+			}
+			return cb("Error will sending command to serial");
+		});
     }
     
     writeByte(address, value, cb, ack = true) {

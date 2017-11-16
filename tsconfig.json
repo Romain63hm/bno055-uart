@@ -1,0 +1,12 @@
+{ 
+  "compilerOptions": { 
+      "noImplicitAny": false, 
+      "target": "es2015",
+      "module": "commonjs", 
+      "outDir": "./build" 
+  }, 
+  "exclude" : [ 
+      "./build", 
+      "./node_modules" 
+  ] 
+}
