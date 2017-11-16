@@ -213,6 +213,7 @@ export class BNO055 {
             autoOpen: false,
             baudRate: 115200
         }
+        logger.error("Constructor debug test")
         this.serial = new SerialPort(port, options);
         this.serial.open((error) => {
             if (error) {
