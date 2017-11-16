@@ -221,6 +221,8 @@ export class BNO055 {
             }
             // Once the serial port is open we configure the data reader
             this.serial.on('data', (data) => {
+                logger.debug("Received datas :")
+                logger.debug(data)
                 if (this.observers.length > 0) {
                     // Getting the first observer and resolving it with received datas from the serial port
                     this.observers[0].next(data);
@@ -285,7 +287,7 @@ export class BNO055 {
             var length = succ[1];
             Observable.create(function (observer) {
                 self.observers.push(observer);
-                var resp = self.serial.read(length as number);
+                self.serial.read(length as number);
             }).subscribe(result => {
                 console.log("New Read");
                 console.log(result);
