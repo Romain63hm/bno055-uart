@@ -14,6 +14,10 @@
   "author": "Romain Rousserie",
   "license": "ISC",
   "dependencies": {
-    "serialport": "^6.0.4"
+    "install": "^0.10.1",
+    "npm": "^5.5.1",
+    "rpi-gpio": "^0.9.1",
+    "serialport": "^6.0.4",
+    "sleep": "^5.1.1"
   }
 }

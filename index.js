@@ -1,4 +1,6 @@
 var SerialPort = require('serialport');
+var gpio = require('rpi-gpio');
+var sleep = require('sleep');
 
 // I2C addresses
 const BNO055_ADDRESS_A = 0x28
@@ -181,45 +183,175 @@ const OPERATION_MODE_NDOF = 0X0C
 
 class BNO055 {
 
-    constructor(port) {
-        this.serial = new SerialPort(port, { autoOpen: false });
-        this.serial.flush()
-        this.serial.open(function (err) {
-            console.log("opened");
-            if (err) {
-                return console.log('Error opening port: ', err.message);
-            } else {
-                console.log("Port successfully opened");
-            }
-        });
-    }
+    constructor(port, resetPin, cb) {
+		if (!cb) {
+			cb = function(err) {}
+		}
+		
+		var self = this
+		if (resetPin) {
+			// Setting up the GPIO mode to OUT 
+			gpio.setup(resetPin, gpio.DIR_HIGH, function(err) {
+				if (err) {
+					return cb(err);
+				}
+				// If succeeded we send a reset message to the specified
+				// reset pin
+				gpio.write(18, true, function(err) {
+					if (err) {
+						return cb(err);
+					}
+					sleep.msleep(650);
+					console.log("Reset Succeeded");
+					self.serial = new SerialPort(port, { autoOpen: false, baudRate: 115200 });	
+								
+					self.serial.open(function (err) {
+						if (err) {
+							return cb(err);
+						}	
+						console.log("Port successfully opened");
+						return cb()
+					});
+				});
+			});
+		}
+	}
+	
+	begin() {
+		var self = this
+		this.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err) {
+			self.configMode(function(err) {
+				if (err) {
+					console.log(err);
+				}
+				console.log("ok");
+				self.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err, succ) {
+					if (err) {
+						console.log(err)
+					}
+					console.log("Succeessssss")
+					console.log(succ)
+					self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
+						if (err) {
+							console.log(err)
+						}
+						console.log(succ);
+						if(BNO055 == succ) {
+							console.log("On a la bonne adresse");
+						} else {
+							console.log("On a PAAAAS la bonne adresse");
+							return false;
+						}
+					});
+				});
+			});
+		}, false);
+	}
+	
+	configMode(cb) {
+		this.setMode(OPERATION_MODE_CONFIG, cb);
+	}
+	
+	setMode(mode, cb) {
+		// Set operation mode for BNO055 sensor. Mode should be a value from table 3-3 and 3-5 datasheet
+		console.log("Set mode");
+		console.log(mode)
+		this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, cb);
+		sleep.msleep(30);
+	}
 
-    readBytes(address, length) {
-        var command = new Uint8Array(4)
+	readByte(address, cb) {
+		this.readBytes(address, 1, cb);
+	}
+	
+    readBytes(address, length, cb) {
+		var self = this
+        var command = new Array(4)
         command[0] = 0xAA;  // Start byte
         command[1] = 0x01;  // Write
         command[2] = address & 0xFF;
         command[3] = length & 0xFF;
-        return this.serialSend(command)
+        
+        this.serialSend(command, function(err, succ) {
+			if (err) { 
+				return cb(err) 
+			}
+			console.log(succ[0])
+			if (succ[0] != 0xBB) {
+				return cb('Register Read error');
+			}
+			var length = succ[1];
+			var resp = self.serial.read(length)
+			console.log("New Read");
+			console.log(resp);
+			if (resp == null || resp.length != length) {
+				return cb('Timeout waiting to read data, is the BNO055 connected?', null)
+			}
+			return cb(null, resp);
+		}, true)
     }
 
-    serialSend(command) {
-        var attempts = 0
-        while (true) {
-            this.serial.write(command, function (err) {
-                if (err) {
-                    return console.log('Error on write: ', err.message);
-                }
-                console.log('message written');
-            });
-            var resp = this.serial.read();
-
-            if (resp != null) {
-                return resp
-            }
-        }
+    serialSend(command, cb, ack) {
+        var self = this;
+        console.log(command)
+		self.serial.write(command, 'hex',  function (err) {
+			if (err) {
+				console.log("Error while writing")
+				return cb(err)
+			}
+			if (!ack) {
+				console.log('Ack is false');
+				return cb()
+			}
+			var resp = self.serial.read(2);
+			
+			if (resp == null || resp.length != 2) {
+				return cb('Timeout waiting for serial acknoledge, is the BNO055 connected?')
+			} 
+			if (!(resp[0] == 0xEE && resp[1] == 0x07)) {
+				console.log(resp[0])
+				console.log(resp[1])
+				return cb(null, resp)
+			}
+			return cb("Error will sending command to serial");
+		});
     }
+    
+    writeByte(address, value, cb, ack = true) {
+		var command = new Array(5)
+        command[0] = 0xAA;  // Start byte
+        command[1] = 0x00;  // Write
+        command[2] = address & 0xFF;
+        command[3] = 1;
+        command[4] = value & 0xFF
+        this.serialSend(command, function(err, succ) {
+			if (err) {
+				return cb(err);
+			}
+			if (ack && succ[0] != 0xEE && resp[1] != 0x01) {
+				return cb("Register write error", null);
+			}
+			return cb(null, succ);
+		}, ack)
+	}
+	
+	getCalibrationStatus(cb) {
+		this.readByte(BNO055_CALIB_STAT_ADDR, cb);
+	}
 }
-console.log(BNO055_ADDRESS_A)
-var bno = new BNO055('/dev/ttyS0');
-console.log(bno.readBytes(BNO055_CALIB_STAT_ADDR, 1));
+
+var bno = new BNO055('/dev/ttyS0', 18, function(err) {
+	
+	if (err) {
+		console.log("Open error" + err);
+	}
+
+	console.log("Connection to /dev/ttySO succeeded");
+	console.log(bno.begin());
+	//bno.getCalibrationStatus(function(err, succ) {
+	//	console.log("Calibration infos");
+	//	console.log(err);
+	//	console.log(succ);
+			
+	//});
+});
