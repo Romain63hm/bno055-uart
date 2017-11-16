@@ -352,6 +352,7 @@ export class BNO055 {
                 logger.debug("serialSend : Reading from serial");
                 self.serial.read(2);
             }).subscribe(result => {
+                logger.debug("serialSend : Datas revceived");
                 if (result == null || result.length != 2) {
                     return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
                 }
