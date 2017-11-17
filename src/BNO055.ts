@@ -296,7 +296,7 @@ export class BNO055 {
             }).subscribe(result => {
                 logger.debug("readBytes : Reading answer");
                 logger.debug(result);
-                if (result == null || result.length != length) {
+                if (result == null) {
                     return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
                 }
                 return callback(null, result);
