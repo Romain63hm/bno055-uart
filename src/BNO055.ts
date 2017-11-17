@@ -4,6 +4,7 @@ import { ErrorCallback } from 'serialport';
 import * as winston from 'winston';
 import * as gpio from 'rpi-gpio';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 var logger = new (winston.Logger)({
     transports: [
@@ -250,7 +251,7 @@ export class BNO055 {
 					self.readBytes(BNO055_CHIP_ID_ADDR, 1, function(err, succ) {
                         logger.info("begin : Read Byte callback")
 						if (err) {
-							console.log(err)
+							logger.error("begin : " + err);
                         }
                         logger.info("Adresseeeeeeeeeeeeeeeeeee")
 						logger.debug(succ.toString());
@@ -287,17 +288,17 @@ export class BNO055 {
             }
             var length = succ[1];
             logger.info("readBytes : Serial Send Successfull")
-            Observable.create(function (observer) {
-                logger.debug("readBytes : Send read request");
-                self.observers.push(observer);
-                self.serial.read(length as number);
-            }).subscribe(result => {
+
+            var observable = new Subject();
+            self.observers.push(observable);
+            observable.subscribe(result => {
                 logger.debug("readBytes : Reading answer");
-                logger.debug(result);
+                console.log(result);
+                //logger.debug(result);
                 if (result == null) {
                     return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
                 }
-                return callback(null, result);
+                //return callback(null, result);
             });
         }, true);
     }
