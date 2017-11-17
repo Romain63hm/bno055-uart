@@ -214,9 +214,6 @@ export class BNO055 {
             autoOpen: false,
             baudRate: 115200
         }
-        logger.error("Constructor debug test");
-        logger.info("Constructor info test");
-        logger.warn("Constructor warn test");
         this.serial = new SerialPort(port, options);
         this.serial.open((error) => {
             if (error) {
@@ -250,20 +247,21 @@ export class BNO055 {
 					if (err) {
 						logger.error("Error while setting config mode" + err )
                         return;
-					}
-					self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
-						if (err) {
-							console.log(err)
-                        }
-                        logger.info("Adresseeeeeeeeeeeeeeeeeee")
-						logger.debug(succ.toString());
-						//if(BNO055_ID == succ) {
-						//	console.log("On a la bonne adresse");
-						//} else {
-						//	console.log("On a PAAAAS la bonne adresse");
-						//	return false;
-						//}
-					});
+                    }
+                    logger.info("Here we are")
+					// self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
+					// 	if (err) {
+					// 		console.log(err)
+                    //     }
+                    //     logger.info("Adresseeeeeeeeeeeeeeeeeee")
+					// 	logger.debug(succ.toString());
+					// 	//if(BNO055_ID == succ) {
+					// 	//	console.log("On a la bonne adresse");
+					// 	//} else {
+					// 	//	console.log("On a PAAAAS la bonne adresse");
+					// 	//	return false;
+					// 	//}
+					// });
 				});
 			});
 		}, false);
