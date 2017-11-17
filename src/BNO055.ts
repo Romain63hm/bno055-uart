@@ -239,7 +239,7 @@ export class BNO055 {
     public begin() {
         var self = this
 		this.writeByte(BNO055_PAGE_ID_ADDR, 0, function(err) {
-			self.configMode(function(err) {
+			self.configMode(function(err, succ) {
 				if (err) {
                     logger.error("Begin : Error while setting config mode" + err)
                     return;
@@ -323,13 +323,18 @@ export class BNO055 {
         }, ack)
     }
 
-    private configMode(cb) {
-        this.setMode(OPERATION_MODE_CONFIG, cb);
+    private configMode(callback : ConfigCallback) {
+        this.setMode(OPERATION_MODE_CONFIG, function(err, succ) {
+            if (err) {
+                logger.error("configMode : Error" + err);
+            }
+            return callback(err, succ)
+        });
     }
 
-    private setMode(mode : number, cb) {
+    private setMode(mode : number, callback : ConfigCallback) {
         // Set operation mode for BNO055 sensor. Mode should be a value from table 3-3 and 3-5 datasheet
-        this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, cb);
+        this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, callback);
         setTimeout(() => {
             console.log("Timeout expired")
         }, 30);
@@ -348,7 +353,7 @@ export class BNO055 {
                 }
                 if (!ack) {
                     logger.debug("serialSend : Method does not expect any return");
-                    return callback()
+                    return callback(null)
                 }
                 logger.debug("serialSend : Method expect return");
                 Observable.create(function (observer) {
@@ -375,15 +380,22 @@ export class BNO055 {
     }
 }
 
-
-interface ReadCallback {
+interface Callback {
     (error: Error, result?: string | Buffer): void;
 }
 
-interface WriteCallback {
-    (error: Error, result?: string | Buffer): void;
+interface ConfigCallback extends Callback {
+    
 }
 
-interface SendCallback {
-    (error?: Error, result?: string | Buffer): void;
+interface ReadCallback extends Callback {
+    
+}
+
+interface WriteCallback extends Callback {
+    
+}
+
+interface SendCallback extends Callback {
+    
 }
