@@ -249,6 +249,7 @@ export class BNO055 {
                         return;
 					}
 					self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
+                        logger.info("begin : Read Byte callback")
 						if (err) {
 							console.log(err)
                         }
