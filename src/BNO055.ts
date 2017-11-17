@@ -283,10 +283,10 @@ export class BNO055 {
 
         this.serialSend(command, function (err, succ) {
             if (err) {
-                callback(err);
+                return callback(err);
             }
             if (succ[0] != 0xBB) {
-                callback(new Error('Register Read error'));
+                return callback(new Error('Register Read error'));
             }
             var length = succ[1];
             logger.info("readBytes : Serial Send Successfull")
@@ -298,9 +298,9 @@ export class BNO055 {
                 logger.debug("readBytes : Reading answer");
                 logger.debug(result);
                 if (result == null) {
-                    callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
+                    return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
                 }
-                callback(null, result);
+                return callback(null, result);
             });
         }, true);
     }
@@ -314,12 +314,12 @@ export class BNO055 {
         command[4] = value & 0xFF
         this.serialSend(command, function (err, succ) {
             if (err) {
-                cb(err);
+                return cb(err);
             }
             if (ack && succ[0] != 0xEE && succ[1] != 0x01) {
-                cb("Register write error", null);
+                return cb("Register write error", null);
             }
-            cb(null, succ);
+            return cb(null, succ);
         }, ack)
     }
 
@@ -330,22 +330,25 @@ export class BNO055 {
     private setMode(mode : number, cb) {
         // Set operation mode for BNO055 sensor. Mode should be a value from table 3-3 and 3-5 datasheet
         this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, cb);
+        setTimeout(() => {
+            console.log("Timeout expired")
+        }, 30);
     }
 
     serialSend(buffer : string | number [] | Buffer, callback : SendCallback, ack) {
         var self = this;
         self.serial.write(buffer, 'hex', (error, bytesWritten) => {
             if (error) {
-                callback(new Error(error));
+                return callback(new Error(error))
             }
             logger.info('serialSend : Write successfull')
             self.serial.drain(function (err) {
                 if (err) {
-                    callback(err)
+                    return callback(err)
                 }
                 if (!ack) {
                     logger.debug("serialSend : Method does not expect any return");
-                    callback()
+                    return callback()
                 }
                 logger.debug("serialSend : Method expect return");
                 Observable.create(function (observer) {
@@ -356,12 +359,12 @@ export class BNO055 {
                     logger.debug("serialSend : Datas received");
                     logger.debug(result);
                     if (result == null || result.length != 2) {
-                        callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
+                        return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
                     }
                     if (!(result[0] == 0xEE && result[1] == 0x07)) {
-                        callback(null, result)
+                        return callback(null, result)
                     }
-                    callback(new Error('Error while sending command to serial'));
+                    return callback(new Error('Error while sending command to serial'));
                 });
             });
         });
