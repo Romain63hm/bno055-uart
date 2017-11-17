@@ -226,10 +226,8 @@ export class BNO055 {
                 logger.info(" Observers length : " + self.observers.length);
                 if (self.observers.length > 0) {
                     logger.debug("on::data : Sending back datas through the observer");
-                    // Getting the first observer and resolving it with received datas from the serial port
-                    self.observers[0].next(data);
-                    // Removing the observer from the list
-                    self.observers.shift();
+                    // Removing the first observer and resolving it with received datas from the serial port
+                    self.observers.shift().next(data);
                 }
             });
         });
