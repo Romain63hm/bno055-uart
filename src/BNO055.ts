@@ -226,6 +226,7 @@ export class BNO055 {
                 logger.info(" Observers length : " + self.observers.length);
                 if (self.observers.length > 0) {
                     logger.debug("on::data : Sending back datas through the observer");
+                    logger.debug(data);
                     // Removing the first observer and resolving it with received datas from the serial port
                     var observer =  self.observers.shift()
                     observer.next(data);
@@ -351,7 +352,7 @@ export class BNO055 {
                 logger.debug("serialSend : Reading from serial");
                 self.serial.read(2);
             }).subscribe(result => {
-                logger.debug("serialSend : Datas revceived");
+                logger.debug("serialSend : Datas received");
                 if (result == null || result.length != 2) {
                     return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
                 }
