@@ -248,7 +248,7 @@ export class BNO055 {
 						logger.error("Error while setting config mode" + err )
                         return;
 					}
-					self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
+					self.readBytes(BNO055_CHIP_ID_ADDR, 1, function(err, succ) {
                         logger.info("begin : Read Byte callback")
 						if (err) {
 							console.log(err)
