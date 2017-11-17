@@ -330,9 +330,6 @@ export class BNO055 {
     private setMode(mode : number, cb) {
         // Set operation mode for BNO055 sensor. Mode should be a value from table 3-3 and 3-5 datasheet
         this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, cb);
-        setTimeout(() => {
-            console.log("Timeout expired")
-        }, 30);
     }
 
     serialSend(buffer : string | number [] | Buffer, callback : SendCallback, ack) {
