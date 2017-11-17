@@ -337,30 +337,31 @@ export class BNO055 {
 
     serialSend(buffer : string | number [] | Buffer, callback : SendCallback, ack) {
         var self = this;
-        self.serial.write(buffer, 'hex')
-        self.serial.drain(function (err) {
-            if (err) {
-                return callback(err)
-            }
-            if (!ack) {
-                logger.debug("serialSend : Method does not expect any return");
-                return callback()
-            }
-            logger.debug("serialSend : Method expect return");
-            Observable.create(function (observer) {
-                self.observers.push(observer);
-                logger.debug("serialSend : Reading from serial");
-                self.serial.read(2);
-            }).subscribe(result => {
-                logger.debug("serialSend : Datas received");
-                logger.debug(result);
-                if (result == null || result.length != 2) {
-                    return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
+        self.serial.write(buffer, 'hex', (error, bytesWritten) => {
+            self.serial.drain(function (err) {
+                if (err) {
+                    return callback(err)
                 }
-                if (!(result[0] == 0xEE && result[1] == 0x07)) {
-                    return callback(null, result)
+                if (!ack) {
+                    logger.debug("serialSend : Method does not expect any return");
+                    return callback()
                 }
-                return callback(new Error('Error while sending command to serial'));
+                logger.debug("serialSend : Method expect return");
+                Observable.create(function (observer) {
+                    self.observers.push(observer);
+                    logger.debug("serialSend : Reading from serial");
+                    self.serial.read(2);
+                }).subscribe(result => {
+                    logger.debug("serialSend : Datas received");
+                    logger.debug(result);
+                    if (result == null || result.length != 2) {
+                        return callback(new Error('Timeout waiting for serial acknoledge, is the BNO055 connected?'));
+                    }
+                    if (!(result[0] == 0xEE && result[1] == 0x07)) {
+                        return callback(null, result)
+                    }
+                    return callback(new Error('Error while sending command to serial'));
+                });
             });
         });
     }
