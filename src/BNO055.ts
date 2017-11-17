@@ -288,18 +288,18 @@ export class BNO055 {
             }
             var length = succ[1];
             logger.info("readBytes : Serial Send Successfull")
-            // Observable.create(function (observer) {
-            //     logger.debug("readBytes : Send read request");
-            //     self.observers.push(observer);
-            //     self.serial.read(length as number);
-            // }).subscribe(result => {
-            //     logger.debug("readBytes : Reading answer");
-            //     logger.debug(result);
-            //     if (result == null || result.length != length) {
-            //         return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
-            //     }
-            //     return callback(null, result);
-            // });
+            Observable.create(function (observer) {
+                logger.debug("readBytes : Send read request");
+                self.observers.push(observer);
+                self.serial.read(length as number);
+            }).subscribe(result => {
+                logger.debug("readBytes : Reading answer");
+                logger.debug(result);
+                if (result == null || result.length != length) {
+                    return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
+                }
+                return callback(null, result);
+            });
         }, true);
     }
 
