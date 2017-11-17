@@ -247,21 +247,20 @@ export class BNO055 {
 					if (err) {
 						logger.error("Error while setting config mode" + err )
                         return;
-                    }
-                    logger.info("Here we are")
-					// self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
-					// 	if (err) {
-					// 		console.log(err)
-                    //     }
-                    //     logger.info("Adresseeeeeeeeeeeeeeeeeee")
-					// 	logger.debug(succ.toString());
-					// 	//if(BNO055_ID == succ) {
-					// 	//	console.log("On a la bonne adresse");
-					// 	//} else {
-					// 	//	console.log("On a PAAAAS la bonne adresse");
-					// 	//	return false;
-					// 	//}
-					// });
+					}
+					self.readByte(BNO055_CHIP_ID_ADDR, function(err, succ) {
+						if (err) {
+							console.log(err)
+                        }
+                        logger.info("Adresseeeeeeeeeeeeeeeeeee")
+						logger.debug(succ.toString());
+						//if(BNO055_ID == succ) {
+						//	console.log("On a la bonne adresse");
+						//} else {
+						//	console.log("On a PAAAAS la bonne adresse");
+						//	return false;
+						//}
+					});
 				});
 			});
 		}, false);
@@ -287,18 +286,19 @@ export class BNO055 {
                 return callback(new Error('Register Read error'));
             }
             var length = succ[1];
-            Observable.create(function (observer) {
-                logger.debug("readBytes : Send read request");
-                self.observers.push(observer);
-                self.serial.read(length as number);
-            }).subscribe(result => {
-                logger.debug("readBytes : Reading answer");
-                logger.debug(result);
-                if (result == null || result.length != length) {
-                    return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
-                }
-                return callback(null, result);
-            });
+            logger.info("readBytes : Serial Send Successfull")
+            // Observable.create(function (observer) {
+            //     logger.debug("readBytes : Send read request");
+            //     self.observers.push(observer);
+            //     self.serial.read(length as number);
+            // }).subscribe(result => {
+            //     logger.debug("readBytes : Reading answer");
+            //     logger.debug(result);
+            //     if (result == null || result.length != length) {
+            //         return callback(new Error('Timeout waiting to read data, is the BNO055 connected?'));
+            //     }
+            //     return callback(null, result);
+            // });
         }, true);
     }
 
