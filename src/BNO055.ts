@@ -331,7 +331,7 @@ export class BNO055 {
         // Set operation mode for BNO055 sensor. Mode should be a value from table 3-3 and 3-5 datasheet
         this.writeByte(BNO055_OPR_MODE_ADDR, mode & 0xFF, cb);
         setTimeout(() => {
-            return;
+            console.log("Timeout expired")
         }, 30);
     }
 
