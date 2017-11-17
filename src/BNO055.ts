@@ -222,7 +222,8 @@ export class BNO055 {
             // Once the serial port is open we configure the data reader
             self.serial.on('data', (data) => {
                 logger.debug("on::data : Received datas :")
-                logger.debug(data)
+                logger.debug(data);
+                logger.info(" Observers length : " + self.observers.length);
                 if (self.observers.length > 0) {
                     logger.debug("on::data : Sending back datas through the observer");
                     // Getting the first observer and resolving it with received datas from the serial port
